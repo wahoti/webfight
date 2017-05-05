@@ -1,0 +1,54 @@
+<html>
+<head>
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="style.css">
+	<script src="js/socket-io.js"></script>
+	<script src="js/keys.js"></script>
+</head>
+<body>
+	<canvas id="field" width="1200" height="550" ></canvas>	
+	<script>
+		var canvas = document.getElementById("field");
+		var ctx = canvas.getContext("2d");
+		var socket = io();
+	
+		socket.on('draw', function(things){
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			for(var x in things){
+				ctx.fillStyle = things[x].color;
+				ctx.fillRect(
+					things[x].x - (things[x].width/2),
+					things[x].y - (things[x].height/2),
+					things[x].width,
+					things[x].height);				
+			}
+		});
+		
+		//keys
+		document.addEventListener("keydown", keydown, false);
+		document.addEventListener("keyup", keyup, false);
+		document.addEventListener("keydown", function(){
+			socket.emit('keys', up, down, left, right)
+		}, false);
+		document.addEventListener("keyup", function(){
+			socket.emit('keys', up, down, left, right)
+		}, false);
+		
+		//mouse		
+		var mx = 0
+		var my = 0		
+        document.addEventListener('contextmenu', function(c) { c.preventDefault() }, false);
+		canvas.addEventListener("mousedown", function(c){
+			coord = [(c.clientX - canvas.offsetLeft), (c.clientY - canvas.offsetTop)]
+			if(c.which == 1){ socket.emit('action', 'left', coord)}
+			if(c.which == 3){ socket.emit('action', 'right', coord)}
+		}, false);
+		canvas.addEventListener('mousemove',function(c){
+			mx = (c.clientX - canvas.offsetLeft);
+			my = (c.clientY - canvas.offsetTop);
+			//socket.emit('mouse', mx, my)
+		},false);			
+	</script>
+
+</body>
+</html>
